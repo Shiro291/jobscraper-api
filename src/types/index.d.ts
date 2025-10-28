@@ -52,3 +52,24 @@ export interface JobStreetParams {
   country?: string;
   page?: string;
 }
+
+export interface RemoteOKParams {
+  keywords?: string;
+  page?: string;
+}
+
+export interface IndeedParams {
+  keyword?: string;
+  location?: string;
+  country?: string;
+  page?: string;
+}
+
+export interface DisnakerParams {
+  page?: string;
+}
+
+export interface DevJobsScannerParams {
+  keywords?: string;
+  page?: string;
+}

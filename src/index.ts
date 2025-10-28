@@ -34,9 +34,14 @@ app.get("/api", (req, res) => {
   res.json({
     message: "Welcome to Job Scraper API",
     version: process.env.API_VERSION || "2.0.0",
+    runtime: "Bun",
     endpoints: {
       glints: "/api/glints",
       jobstreet: "/api/jobstreet",
+      remoteok: "/api/remoteok",
+      indeed: "/api/indeed",
+      disnaker_bandung: "/api/disnaker_bandung",
+      devjobscanner: "/api/devjobscanner",
       health: "/api/health",
     },
   });
