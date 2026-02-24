@@ -73,9 +73,21 @@
         "answer": "Rp 5 million"
     },
     "Which of the following types of qualifications do you have?": {
-        "type": "Text",
-        "options": [],
-        "answer": "s1"
+        "type": "Dropdown",
+        "options": [
+            "High School Diploma",
+            "National Certificate 1",
+            "National Certificate 2",
+            "National Certificate 3",
+            "National Certificate 4",
+            "Diploma",
+            "Bachelor Degree",
+            "Post Graduate Diploma",
+            "Master Degree",
+            "Doctoral Degree",
+            "I have a qualification that is not listed here"
+        ],
+        "answer": "Bachelor Degree"
     },
     "How many years' experience do you have as a Mathematics and Science Teacher?": {
         "type": "Dropdown",
@@ -976,5 +988,277 @@
             "More than 5 years"
         ],
         "answer": "1 year"
+    },
+    "How many years' experience do you have as an English teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "Yes, the International English Language Testing System (IELTS) certificate": {
+        "type": "MultiChoice",
+        "options": [
+            "Yes, the International English Language Testing System (IELTS) certificate",
+            "Yes, the Test of English as a Foreign Language (TOEFL) certificate",
+            "Yes, the Test of English for International Communication (TOEIC) certificate",
+            "I have an English language proficiency certification which isn't listed",
+            "I don't have an English language proficiency certification"
+        ],
+        "answer": "Yes, the International English Language Testing System (IELTS) certificate | Yes, the Test of English as a Foreign Language (TOEFL) certificate | I have an English language proficiency certification which isn't listed"
+    },
+    "How many years' experience do you have as a Teachers Aide?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "How many years' experience do you have as a Middle School Mathematics Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "1 year"
+    },
+    "How many years' experience do you have as a Primary School Mathematics Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "1 year"
+    },
+    "How many years' experience do you have as a Coding Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "1 year"
+    },
+    "Ya, mobil": {
+        "type": "MultiChoice",
+        "options": [
+            "Ya, mobil",
+            "Ya, motor",
+            "Tidak"
+        ],
+        "answer": "Ya, motor"
+    },
+    "How many years' experience do you have as a Business Development Role?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "1 year"
+    },
+    "Do you have experience in a role which requires relationship management experience?": {
+        "type": "Choice",
+        "options": [
+            "Yes",
+            "No"
+        ],
+        "answer": "No"
+    },
+    "CRM Salesforce": {
+        "type": "MultiChoice",
+        "options": [
+            "CRM Salesforce",
+            "Zoho CRM",
+            "Bitrix24 CRM",
+            "Agile CRM",
+            "Sugar CRM",
+            "HashMicro",
+            "Qontak",
+            "Freshsales",
+            "Pipedrive",
+            "Insightly",
+            "Sage",
+            "NetSuite CRM",
+            "SAP",
+            "Microsoft Dynamics",
+            "None of these"
+        ],
+        "answer": "Salesforce | Zoho CRM | Pipedrive"
+    },
+    "How many years' experience do you have as an Artificial Intelligence Developer?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "1 year"
+    },
+    "Berapa tahun pengalaman kerjamu menggunakan query SQL?": {
+        "type": "Dropdown",
+        "options": [
+            "Tidak ada pengalaman",
+            "Kurang dari 1 tahun",
+            "1 tahun",
+            "2 tahun",
+            "3 tahun",
+            "4 tahun",
+            "5 tahun",
+            "Lebih dari 5 tahun"
+        ],
+        "answer": "Kurang dari 1 tahun"
+    },
+    "How many years' experience do you have as a Quality Assurance Role?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "1 year"
+    },
+    "Berapa tahun pengalaman kerjamu di bidang pengembangan software?": {
+        "type": "Dropdown",
+        "options": [
+            "Tidak ada pengalaman",
+            "Kurang dari 1 tahun",
+            "1 tahun",
+            "2 tahun",
+            "3 tahun",
+            "4 tahun",
+            "5 tahun",
+            "Lebih dari 5 tahun"
+        ],
+        "answer": "1 tahun"
+    },
+    "Pernahkah kamu mendapatkan pekerjaan yang membutuhkan pemahaman mendalam mengenai siklus hidup pengembangan software (software development lifecycle)?": {
+        "type": "Choice",
+        "options": [
+            "Ya",
+            "Tidak"
+        ],
+        "answer": "Tidak"
+    },
+    "Team Foundation Server (TFS)": {
+        "type": "MultiChoice",
+        "options": [
+            "Team Foundation Server (TFS)",
+            "Kayako",
+            "ClearQuest",
+            "JIRA",
+            "Wrike",
+            "SysAid",
+            "Pivotal Tracker",
+            "Bugzilla",
+            "HP Quality Centre",
+            "FogBugz",
+            "Trac",
+            "Rational Team Concert",
+            "Tidak satupun"
+        ],
+        "answer": "JIRA | Wrike"
+    },
+    "How many years' experience do you have as an Early Childhood Education and Care Educator?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "How many years' experience do you have as a Private Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "How many years' experience do you have as a Tutor?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "1 year"
+    },
+    "How many years' experience do you have as a Private English Language Tutor?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
     }
 }

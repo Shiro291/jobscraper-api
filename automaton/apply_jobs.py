@@ -98,18 +98,36 @@ def append_question(q_text: str, q_type: str, answer: str = "", options: Optiona
         json.dump(data, f, indent=4)
 
 
-def is_job_valid(title: str, description: str, exclude_list: List[str]) -> bool:
-    """Whole-word keyword check. Regex patterns like r'\\bart\\b' are supported."""
+def is_job_valid(title: str, description: str, exclude_list: List[str], search_keyword: str = "") -> Tuple[bool, str]:
+    """Whole-word keyword check and positive title match to prevent drift."""
     text = f"{title} {description}".lower()
+    
+    # 1. Check exclusions
     for kw in exclude_list:
         kw = kw.strip()
         if not kw:
             continue
-        # If keyword starts with \b it's a regex pattern, otherwise literal whole-word
         pattern = kw if kw.startswith(r"\b") else rf"\b{re.escape(kw)}\b"
         if re.search(pattern, text):
-            return False
-    return True
+            return False, kw
+
+    # 2. Enforce search keyword inclusion in title (to combat JobStreet recommendation drift)
+    if search_keyword and search_keyword.strip():
+        k_low = search_keyword.strip().lower()
+        t_low = title.lower()
+        
+        # Broaden 'guru' to its common English/Indo equivalents so we don't accidentally skip good matches
+        if "guru" in k_low:
+            valid_words = ["guru", "teacher", "tutor", "pengajar", "lecturer", "educator", "dosen", "pendidik", "instructor", "fasilitator"]
+            if not any(w in t_low for w in valid_words):
+                return False, f"drifted missing {k_low}"
+        else:
+            # General keyword check: at least one word from the search query MUST be in the title
+            words = k_low.split()
+            if words and not any(w in t_low for w in words):
+                return False, f"drifted missing {k_low}"
+                
+    return True, ""
 
 # ---------------------------------------------------------------------------
 # Browser / DOM Helpers
@@ -122,6 +140,13 @@ async def safe_click(locator, retries=3, timeout=3000):
             await locator.click(timeout=timeout)
             return True
         except Exception as e:
+            try:
+                # Fallback: force click via JS if Playwright strict checks (visibility/covered) fail
+                await locator.evaluate("el => el.click()")
+                return True
+            except Exception:
+                pass
+                
             if i == retries - 1:
                 console.print(f"      [red]Click failed after {retries} retries: {e}[/red]")
                 raise e
@@ -135,6 +160,19 @@ async def get_question_groups(page: Page) -> list:
     """
     # The apply page URL confirms we're on the questionnaire step
     groups = []
+    
+    # Wait for React to finish mounting questions before scanning
+    # Without this, query_selector_all runs before all select/input elements are attached
+    try:
+        await page.wait_for_selector(
+            "label[for^='question-'], input[type='checkbox'][id^='ID_Q_'], input[type='checkbox'][id^='AU_Q_']",
+            state="attached", timeout=2000
+        )
+        # Brief settle for remaining elements (React batches renders)
+        await page.wait_for_timeout(300)
+    except Exception:
+        pass  # No questions on this step
+
     # 1. Locate all standard question labels by their for attribute pattern (handles both ID_Q and AU_Q)
     label_handles = await page.query_selector_all("label[for^='question-']")
     for label in label_handles:
@@ -221,19 +259,46 @@ async def get_question_groups(page: Page) -> list:
             continue
 
     # 3. Also find checkbox groups (id^='ID_Q_' or 'AU_Q_' without 'question-' prefix)
-    # These are multi-choice skills/tags grouped under a common heading
+    # These are multi-choice skills/language-fluency groups with a strong tag heading (not label[for])
     checkbox_inputs = await page.query_selector_all("input[type='checkbox'][id^='ID_Q_'], input[type='checkbox'][id^='AU_Q_']")
     seen_prefixes: set = set()
     for inp in checkbox_inputs:
         inp_id = await inp.get_attribute("id") or ""
-        # Group prefix = everything up to last _A_
-        prefix = re.sub(r"_A_\d+$", "", inp_id)
+        # Group prefix = everything up to last _A_ (handles both numeric and hex GUID suffixes)
+        prefix = re.sub(r"_A_[^_]+$", "", inp_id)
         if prefix in seen_prefixes:
             continue
         seen_prefixes.add(prefix)
-        # Find heading label for this group (look for preceding strong/span)
+        
+        # 1. Try finding a label[for^=prefix] heading first
         heading = await page.query_selector(f"label[for^='{prefix}']")
-        heading_text = (await heading.inner_text()).strip() if heading else prefix
+        if heading:
+            heading_text = (await heading.inner_text()).strip()
+        else:
+            # 2. Fallback: walk up DOM from the first checkbox to find nearest strong/span heading
+            heading_text = await inp.evaluate("""
+                el => {
+                    let node = el;
+                    for (let i = 0; i < 10; i++) {
+                        node = node.parentElement;
+                        if (!node) break;
+                        // Look at previous siblings for a strong tag
+                        let sib = node.previousElementSibling;
+                        while (sib) {
+                            const s = sib.querySelector('strong');
+                            if (s) return s.innerText.trim();
+                            sib = sib.previousElementSibling;
+                        }
+                        // Check direct parent for strong
+                        const direct = node.querySelector(':scope > span strong, :scope > div strong');
+                        if (direct) return direct.innerText.trim();
+                    }
+                    return '';
+                }
+            """)
+            if not heading_text:
+                heading_text = prefix  # last resort
+
         # Collect all options in this group
         group_inputs = await page.query_selector_all(f"input[id^='{prefix}_A_']")
         opts = []
@@ -481,6 +546,7 @@ async def navigate_form(page: Page, answers_db: Dict[str, str], title: str, dry_
 
     last_url = ""
     stuck_count = 0
+    answered_questions: set = set()  # Track answered questions to avoid re-prompting on later steps
 
     for step in range(15):
         try:
@@ -491,7 +557,6 @@ async def navigate_form(page: Page, answers_db: Dict[str, str], title: str, dry_
             )
         except Exception:
             pass
-        await page.wait_for_load_state("domcontentloaded")
         current_url = page.url
         
         # Anti-loop guard: if we're stuck on the same URL for 3 iterations, abort
@@ -531,18 +596,26 @@ async def navigate_form(page: Page, answers_db: Dict[str, str], title: str, dry_
 
         # Detect final review/confirmation step
         if "/review" in current_url or "/confirm" in current_url:
-            submit = page.get_by_role("button", name=re.compile(r"(Kirim|Submit)", re.IGNORECASE))
+            # Use button[type='submit'] + .last to bypass zero-width chars in "Kirim lamaran" text
+            # and avoid clicking Ubah/Edit buttons which appear earlier in the DOM
+            submit = page.locator('button[type="submit"]').last
             if await submit.count():
                 if dry_run:
                     console.print(f"  [bold yellow][DRY RUN][/bold yellow] Would click Kirim for '{title}'")
+                    console.print(f"  [bold green]✓ Applied '{title}'[/bold green]")
+                    return True
                 else:
                     await safe_click(submit.first)
+                    console.print(f"    [dim]URL after review submit: {page.url}[/dim]")
                     try:
-                        await page.wait_for_selector("text='Application sent', text='Lamaran terkirim', h1", timeout=5000)
+                        await page.wait_for_url("**/apply/success*", timeout=4000)
+                        console.print(f"  [bold green]✓ Applied '{title}'[/bold green]")
+                        return True
                     except Exception:
-                        await page.wait_for_load_state("domcontentloaded")
-                console.print(f"  [bold green]✓ Applied '{title}'[/bold green]")
-                return True
+                        console.print(f"    [red]Review submit failed: final URL = {page.url}[/red]")
+                        import time
+                        await page.screenshot(path=f"automaton/logs/submit_debug_{int(time.time())}.png", full_page=True)
+                        return False
 
         groups = await get_question_groups(page)
         console.print(f"    [dim]Step {step + 1} ({current_url.split('/')[-1]}): {len(groups)} questions[/dim]")
@@ -550,6 +623,11 @@ async def navigate_form(page: Page, answers_db: Dict[str, str], title: str, dry_
         had_missing = False
         for q_data in groups:
             q_text = q_data["text"]
+            
+            # Skip if this question was already answered in a previous step
+            if q_text in answered_questions:
+                console.print(f"      [dim]Skipping duplicate: '{q_text[:60]}'[/dim]")
+                continue
             
             # 1. Exact match
             matched_answer = answers_db.get(q_text)
@@ -566,10 +644,12 @@ async def navigate_form(page: Page, answers_db: Dict[str, str], title: str, dry_
                     ok = await fill_question_group(q_data, ans)
                     if ok:
                         job_log["questions"].append({"question": q_text, "answer": ans})
+                        answered_questions.add(q_text)
                     elif q_data["is_required"]:
                         had_missing = True
                 else:
                     job_log["questions"].append({"question": q_text, "answer": matched_answer})
+                    answered_questions.add(q_text)
             else:
                 ans = await prompt_for_answer(q_data, auto_mode)
                 answers_db[q_text] = ans
@@ -578,6 +658,7 @@ async def navigate_form(page: Page, answers_db: Dict[str, str], title: str, dry_
                 ok = await fill_question_group(q_data, ans)
                 if ok:
                     job_log["questions"].append({"question": q_text, "answer": ans})
+                    answered_questions.add(q_text)
                 elif q_data["is_required"]:
                     had_missing = True
 
@@ -600,11 +681,24 @@ async def navigate_form(page: Page, answers_db: Dict[str, str], title: str, dry_
             if dry_run:
                 console.print(f"  [bold yellow][DRY RUN][/bold yellow] '{title}'")
             else:
-                await safe_click(submit)
                 try:
-                    await page.wait_for_selector("text='Application sent', text='Lamaran terkirim', html", state="attached", timeout=5000)
-                except Exception:
-                    pass
+                    console.print("    [dim]Clicking submit and waiting for server response...[/dim]")
+                    await safe_click(submit)
+                    console.print(f"    [dim]URL after submit: {page.url}[/dim]")
+                    
+                    # Wait for the URL to change to the success page as the ultimate source of truth
+                    try:
+                        await page.wait_for_url("**/apply/success*", timeout=4000)
+                        console.print("    [dim]Success URL confirmed.[/dim]")
+                    except Exception:
+                        console.print(f"    [red]Validation Error: Did not reach success URL. Final URL = {page.url}[/red]")
+                        import time
+                        await page.screenshot(path=f"automaton/logs/submit_debug_{int(time.time())}.png", full_page=True)
+                        return False
+                        
+                except Exception as e:
+                    console.print(f"    [yellow]Submit error: {e}[/yellow]")
+                    return False
             console.print(f"  [bold green]✓ Applied '{title}'[/bold green]")
             return True
 
@@ -642,10 +736,13 @@ async def run(keyword: str, location: str, exclude_list: List[str], max_apps: in
     console.print(f"[green]Questions bank: {len(answers_db)} | History: {len(applied_history)}[/green]")
 
     import datetime
-    run_timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    start_time = datetime.datetime.now()
+    run_timestamp = start_time.strftime("%Y-%m-%d_%H-%M-%S")
     run_log = {
         "timestamp": run_timestamp,
         "settings": {
+            "start_time": start_time.isoformat(),
+            "end_time": None,
             "keyword": keyword,
             "location": location,
             "exclude_list": exclude_list,
@@ -653,258 +750,313 @@ async def run(keyword: str, location: str, exclude_list: List[str], max_apps: in
             "dry_run": dry_run,
             "auto_mode": auto_mode
         },
-        "applied_jobs": []
+        "applied_jobs": [],
+        "skipped_jobs": []
     }
 
-    async with async_playwright() as pw:
-        # browser-automation skill: dedicated Playwright profile
-        # - No conflict with real Chrome (separate profile dir)
-        # - Session is SAVED after first login: no re-login needed on next run
-        # - First run only: browser opens, user logs in manually, presses Enter
-        import subprocess
-        subprocess.run(["taskkill", "/F", "/IM", "chrome.exe", "/T"], capture_output=True)
-        await asyncio.sleep(1)
+    try:
+        async with async_playwright() as pw:
+            # browser-automation skill: dedicated Playwright profile
+            # - No conflict with real Chrome (separate profile dir)
+            # - Session is SAVED after first login: no re-login needed on next run
+            # - First run only: browser opens, user logs in manually, presses Enter
+            import subprocess
+            subprocess.run(["taskkill", "/F", "/IM", "chrome.exe", "/T"], capture_output=True)
+            await asyncio.sleep(1)
 
-        console.print("[dim]Launching browser...[/dim]")
-        context: BrowserContext = await pw.chromium.launch_persistent_context(
-            user_data_dir=PLAYWRIGHT_PROFILE,
-            headless=False,
-            slow_mo=30,
-            viewport={"width": 1280, "height": 900},
-            args=["--disable-blink-features=AutomationControlled"],
-        )
-
-        # Reliable login check: look for a user-specific nav element in the DOM
-        # The profile/avatar link only renders when a session exists
-        check_page: Page = await context.new_page()
-        console.print("[dim]Checking login status...[/dim]")
-        await check_page.goto("https://id.jobstreet.com", wait_until="domcontentloaded", timeout=20000)
-        await check_page.wait_for_timeout(2000)
-
-        # Check for login button (shown when logged out) vs profile icon (shown when logged in)
-        login_btn_visible = await check_page.locator("a[href*='/id/login'], a:has-text('Masuk')").count()
-        is_logged_out = login_btn_visible > 0 or "login" in check_page.url or "accounts.google" in check_page.url
-
-        if is_logged_out:
-            console.print("\n[bold yellow]═══ LOGIN REQUIRED ═══[/bold yellow]")
-            console.print("Please log in to JobStreet in the browser window (use Google, etc.)")
-            console.print("[dim]The script will continue automatically once you're logged in.[/dim]")
-            # Wait until user is on a jobstreet page that isn't login
-            await check_page.wait_for_url(
-                lambda url: "jobstreet.com" in url
-                    and "login" not in url
-                    and "masuk" not in url
-                    and "accounts.google" not in url
-                    and "seek.com/login" not in url,
-                timeout=0
+            console.print("[dim]Launching browser...[/dim]")
+            context: BrowserContext = await pw.chromium.launch_persistent_context(
+                user_data_dir=PLAYWRIGHT_PROFILE,
+                headless=False,
+                slow_mo=30,
+                viewport={"width": 1280, "height": 900},
+                args=["--disable-blink-features=AutomationControlled"],
             )
+
+            # Reliable login check: look for a user-specific nav element in the DOM
+            # The profile/avatar link only renders when a session exists
+            check_page: Page = await context.new_page()
+            console.print("[dim]Checking login status...[/dim]")
+            await check_page.goto("https://id.jobstreet.com", wait_until="domcontentloaded", timeout=20000)
             await check_page.wait_for_timeout(2000)
-            console.print("[bold green]✓ Logged in! Starting automation...[/bold green]")
-        else:
-            console.print("[green]✓ Already logged in.[/green]")
 
-        await check_page.close()
+            # Check for login button (shown when logged out) vs profile icon (shown when logged in)
+            login_btn_visible = await check_page.locator("a[href*='/id/login'], a:has-text('Masuk')").count()
+            is_logged_out = login_btn_visible > 0 or "login" in check_page.url or "accounts.google" in check_page.url
 
-        safe_kw = keyword.replace(" ", "-").lower()
-        safe_loc = location.replace(" ", "-").lower()
+            if is_logged_out:
+                console.print("\n[bold yellow]═══ LOGIN REQUIRED ═══[/bold yellow]")
+                console.print("Please log in to JobStreet in the browser window (use Google, etc.)")
+                console.print("[dim]The script will continue automatically once you're logged in.[/dim]")
+                # Wait until user is on a jobstreet page that isn't login
+                await check_page.wait_for_url(
+                    lambda url: "jobstreet.com" in url
+                        and "login" not in url
+                        and "masuk" not in url
+                        and "accounts.google" not in url
+                        and "seek.com/login" not in url,
+                    timeout=0
+                )
+                await check_page.wait_for_timeout(2000)
+                console.print("[bold green]✓ Logged in! Starting automation...[/bold green]")
+            else:
+                console.print("[green]✓ Already logged in.[/green]")
+
+            await check_page.close()
+
+            is_recommendation_mode = not keyword.strip()
+
+            if is_recommendation_mode:
+                search_url = "https://id.jobstreet.com/"
+            else:
+                safe_kw = keyword.replace(" ", "-").lower()
+                safe_loc = location.replace(" ", "-").lower()
+                import urllib.parse
+                encoded_loc = urllib.parse.quote(location)
+                search_url = f"https://id.jobstreet.com/id/job-search/{safe_kw}-jobs/in-{safe_loc}//?where={encoded_loc}"
+
+            main_page: Page = await context.new_page()
         
-        import urllib.parse
-        encoded_loc = urllib.parse.quote(location)
-        search_url = f"https://id.jobstreet.com/id/job-search/{safe_kw}-jobs/in-{safe_loc}/?where={encoded_loc}"
+            if is_recommendation_mode:
+                console.print(f"[magenta]Recommendation Mode Active (Homepage)[/magenta]")
+            console.print(f"[cyan]Navigating to {search_url}[/cyan]")
+        
+            await main_page.goto(search_url, wait_until="domcontentloaded")
+            try:
+                await main_page.wait_for_selector('article[data-automation="normalJob"], a[data-automation^="recommendedJobLink_"]', timeout=10000)
+            except Exception:
+                pass
 
-        main_page: Page = await context.new_page()
-        console.print(f"[cyan]Navigating to {search_url}[/cyan]")
-        await main_page.goto(search_url, wait_until="domcontentloaded")
-        try:
-            await main_page.wait_for_selector('article[data-automation="normalJob"], a[data-automation^="recommendedJobLink_"]', timeout=10000)
-        except Exception:
-            pass
+            console.print("[bold]Scanning for jobs...[/bold]\n")
+            apps_done = 0
+            empty_recs_count = 0
 
-        console.print("[bold]Scanning for jobs...[/bold]\n")
-        apps_done = 0
-
-        while apps_done < max_apps:
-            # Collect all job links on this page
-            all_elements = (
-                await main_page.locator('article[data-automation="normalJob"]').element_handles()
-                + await main_page.locator('a[data-automation^="recommendedJobLink_"]').element_handles()
-            )
-
-            unique: Dict[str, Dict] = {}
-            for el in all_elements:
+            while apps_done < max_apps:
+                # Cast a wide net for all potential job links on the page (SERP or Homepage)
                 try:
-                    tag = await el.evaluate("e => e.tagName.toLowerCase()")
-                    if tag == "article":
-                        link = await el.query_selector('a[data-automation="jobTitle"]') or await el.query_selector('a[href*="/job/"]')
-                        if not link:
-                            continue
-                    else:
-                        link = el
-                    href = await link.get_attribute("href") or ""
-                    title = (await link.inner_text()).strip()
-                    if href and len(title) > 3:
-                        job_id = href.split("?")[0]
-                        if job_id not in unique:
-                            unique[job_id] = {"title": title, "href": href}
+                    all_links = await main_page.locator('a[href*="/job/"]').element_handles()
                 except Exception:
-                    continue
+                    all_links = []
 
-            console.print(f"[dim]  {len(unique)} jobs visible[/dim]")
-            if not unique:
-                console.print("[yellow]No jobs found on this page.[/yellow]")
-                break
-
-            for job_id, data in unique.items():
-                if apps_done >= max_apps:
-                    break
-
-                title = data["title"]
-                href = data["href"]
-                job_url = href if href.startswith("http") else f"https://id.jobstreet.com{href}"
-                clean_url = job_url.split("?")[0]
-
-                if clean_url in applied_history:
-                    continue
-                if not is_job_valid(title, "", exclude_list):
-                    console.print(f"[yellow]  Skip (title filter): {title}[/yellow]")
-                    continue
-
-                console.print(f"\n[cyan]→ {title}[/cyan]")
-
-                job_page: Page = await context.new_page()
-                try:
-                    await job_page.goto(job_url, timeout=45000, wait_until="domcontentloaded")
+                unique: Dict[str, Dict] = {}
+                for link in all_links:
                     try:
-                        await job_page.wait_for_selector('a[data-automation="job-detail-apply"], div[data-automation="jobAdDetails"]', timeout=8000)
+                        href = await link.get_attribute("href") or ""
+                        if "/job/" not in href:
+                            continue
+                            
+                        # Extract numeric job ID to avoid duplicates (e.g., /id/job/12345678)
+                        job_id_match = re.search(r"/job/(\d+)", href)
+                        if not job_id_match:
+                            continue
+                        job_id = job_id_match.group(1)
+                        
+                        # Grab text. JobStreet links often wrap the entire card or just have the title.
+                        raw_text = (await link.inner_text()).strip()
+                        if not raw_text:
+                            raw_text = await link.get_attribute("aria-label") or await link.get_attribute("title") or ""
+                            
+                        # The first line of a card is almost always the Job Title
+                        title = raw_text.split("\n")[0].strip()
+                        
+                        # Filter out utility links that share the /job/ path but aren't the job title
+                        ignore_texts = ["simpan", "save", "lamaran cepat", "quick apply", "lihat semua", "see all"]
+                        if href and len(title) > 3 and title.lower() not in ignore_texts:
+                            if job_id not in unique:
+                                unique[job_id] = {"title": title, "href": href}
+                    except Exception:
+                        continue
+
+                console.print(f"[dim]  {len(unique)} jobs visible[/dim]")
+                if not unique:
+                    if is_recommendation_mode:
+                        empty_recs_count += 1
+                        if empty_recs_count >= 5:
+                            console.print("[yellow]No more recommendations found after 5 retries. Done.[/yellow]")
+                            break
+                        console.print(f"[yellow]No jobs found. Refreshing homepage ({empty_recs_count}/5)...[/yellow]")
+                        await main_page.reload(wait_until="domcontentloaded")
+                        try:
+                            await main_page.wait_for_selector('article[data-automation="normalJob"], a[data-automation^="recommendedJobLink_"]', timeout=8000)
+                        except Exception:
+                            pass
+                        continue
+                    else:
+                        console.print("[yellow]No jobs found on this page.[/yellow]")
+                        break
+
+                empty_recs_count = 0  # Reset upon finding jobs
+
+                for job_id, data in unique.items():
+                    if apps_done >= max_apps:
+                        break
+
+                    title = data["title"]
+                    href = data["href"]
+                    job_url = href if href.startswith("http") else f"https://id.jobstreet.com{href}"
+                    clean_url = job_url.split("?")[0]
+
+                    if clean_url in applied_history:
+                        run_log["skipped_jobs"].append({"title": title, "url": clean_url, "reason": "already history", "keyword": ""})
+                        continue
+                
+                    is_valid, matched_kw = is_job_valid(title, "", exclude_list, keyword)
+                    if not is_valid:
+                        console.print(f"[yellow]  Skip (title filter): {title}[/yellow]")
+                        run_log["skipped_jobs"].append({"title": title, "url": clean_url, "reason": "title filter", "keyword": matched_kw})
+                        continue
+
+                    console.print(f"\n[cyan]→ {title}[/cyan]")
+
+                    job_page: Page = await context.new_page()
+                    try:
+                        await job_page.goto(job_url, timeout=45000, wait_until="domcontentloaded")
+                        try:
+                            await job_page.wait_for_selector('a[data-automation="job-detail-apply"], div[data-automation="jobAdDetails"]', timeout=8000)
+                        except Exception:
+                            pass
+                    except Exception as e:
+                        console.print(f"  [red]Load failed: {e}[/red]")
+                        await job_page.close()
+                        continue
+
+                    # Scrape metadata for logging and location filtering
+                    loc_text, sal_text = "Unknown", "Hidden"
+                    try:
+                        loc_el = job_page.locator("[data-automation='job-detail-location']")
+                        if await loc_el.count():
+                            loc_text = await loc_el.first.inner_text()
+                        sal_el = job_page.locator("[data-automation='job-detail-salary']")
+                        if await sal_el.count():
+                            sal_text = await sal_el.first.inner_text()
                     except Exception:
                         pass
-                except Exception as e:
-                    console.print(f"  [red]Load failed: {e}[/red]")
-                    await job_page.close()
-                    continue
 
-                # Scrape metadata for logging and location filtering
-                loc_text, sal_text = "Unknown", "Hidden"
-                try:
-                    loc_el = job_page.locator("[data-automation='job-detail-location']")
-                    if await loc_el.count():
-                        loc_text = await loc_el.first.inner_text()
-                    sal_el = job_page.locator("[data-automation='job-detail-salary']")
-                    if await sal_el.count():
-                        sal_text = await sal_el.first.inner_text()
-                except Exception:
-                    pass
+                    # Enforce strict location check (JobStreet sometimes injects recommended jobs outside the search area)
+                    if location and location.lower() not in loc_text.lower() and loc_text != "Unknown":
+                        console.print(f"  [yellow]Skip (location filter): {loc_text}[/yellow]")
+                        run_log["skipped_jobs"].append({"title": title, "url": clean_url, "reason": "location filter", "keyword": loc_text})
+                        await job_page.close()
+                        continue
 
-                # Enforce strict location check (JobStreet sometimes injects recommended jobs outside the search area)
-                if location and location.lower() not in loc_text.lower() and loc_text != "Unknown":
-                    console.print(f"  [yellow]Skip (location filter): {loc_text}[/yellow]")
-                    await job_page.close()
-                    continue
+                    # Check description keywords
+                    try:
+                        desc_el = job_page.locator("div[data-automation='jobAdDetails']")
+                        if await desc_el.count():
+                            desc = await desc_el.first.inner_text()
+                            is_valid, matched_kw = is_job_valid(title, desc, exclude_list, keyword)
+                            if not is_valid:
+                                console.print("  [yellow]Skip (desc filter)[/yellow]")
+                                run_log["skipped_jobs"].append({"title": title, "url": clean_url, "reason": "desc filter", "keyword": matched_kw})
+                                await job_page.close()
+                                continue
+                    except Exception:
+                        pass
 
-                # Check description keywords
-                try:
-                    desc_el = job_page.locator("div[data-automation='jobAdDetails']")
-                    if await desc_el.count():
-                        desc = await desc_el.first.inner_text()
-                        if not is_job_valid(title, desc, exclude_list):
-                            console.print("  [yellow]Skip (desc filter)[/yellow]")
+                    # Find Apply button
+                    try:
+                        pages_before = len(context.pages)
+                        apply_btn = job_page.locator('a[data-automation="job-detail-apply"]')
+
+                        # Skip external applications
+                        if await job_page.locator('a[data-automation="job-detail-apply-external"]').count():
+                            console.print("  [dim]Skip (external)[/dim]")
+                            run_log["skipped_jobs"].append({"title": title, "url": clean_url, "reason": "external application", "keyword": ""})
                             await job_page.close()
                             continue
-                except Exception:
-                    pass
 
-                # Find Apply button
-                try:
-                    pages_before = len(context.pages)
-                    apply_btn = job_page.locator('a[data-automation="job-detail-apply"]')
+                        if not await apply_btn.count():
+                            # Fallback - look for a Quick Apply button that isn't external
+                            apply_btn = job_page.locator("button:has-text('Lamaran Cepat'), button:has-text('Apply')")
 
-                    # Skip external applications
-                    if await job_page.locator('a[data-automation="job-detail-apply-external"]').count():
-                        console.print("  [dim]Skip (external)[/dim]")
+                        if not await apply_btn.count():
+                            console.print("  [dim]Skip (no apply button)[/dim]")
+                            run_log["skipped_jobs"].append({"title": title, "url": clean_url, "reason": "no apply button", "keyword": ""})
+                            await job_page.close()
+                            continue
+
+                        btn_text = await apply_btn.first.inner_text()
+                        if "situs" in btn_text.lower() or "site" in btn_text.lower():
+                            console.print("  [dim]Skip (external site)[/dim]")
+                            run_log["skipped_jobs"].append({"title": title, "url": clean_url, "reason": "external site text", "keyword": ""})
+                            await job_page.close()
+                            continue
+
+                        console.print("  [magenta]Applying...[/magenta]")
+                        await safe_click(apply_btn.first)
+                        try:
+                            await job_page.wait_for_load_state("domcontentloaded", timeout=5000)
+                        except Exception:
+                            pass
+
+                        # Handle application in new tab vs same page
+                        apply_page = context.pages[-1] if len(context.pages) > pages_before else job_page
+                        new_tab = apply_page != job_page
+                        if new_tab:
+                            await apply_page.bring_to_front()
+
+                        job_log = {
+                            "title": title,
+                            "url": clean_url,
+                            "location": loc_text,
+                            "salary": sal_text,
+                            "questions": []
+                        }
+                        success = await navigate_form(apply_page, answers_db, title, dry_run, auto_mode, job_log)
+
+                        if success:
+                            apps_done += 1
+                            run_log["applied_jobs"].append(job_log)
+                            applied_history.add(clean_url)
+                            log_applied_job(title, clean_url, sal_text, loc_text, dry_run)
+                            if max_apps >= 999999:
+                                console.print(f"  [cyan]Logged ({apps_done})[/cyan]")
+                            else:
+                                console.print(f"  [cyan]Logged ({apps_done}/{max_apps})[/cyan]")
+
+                        if new_tab:
+                            await apply_page.close()
                         await job_page.close()
-                        continue
 
-                    if not await apply_btn.count():
-                        # Fallback - look for a Quick Apply button that isn't external
-                        apply_btn = job_page.locator("button:has-text('Lamaran Cepat'), button:has-text('Apply')")
+                    except Exception as e:
+                        console.print(f"  [red]Apply error: {e}[/red]")
+                        try:
+                            await job_page.close()
+                        except Exception:
+                            pass
 
-                    if not await apply_btn.count():
-                        console.print("  [dim]Skip (no apply button)[/dim]")
-                        await job_page.close()
-                        continue
-
-                    btn_text = await apply_btn.first.inner_text()
-                    if "situs" in btn_text.lower() or "site" in btn_text.lower():
-                        console.print("  [dim]Skip (external site)[/dim]")
-                        await job_page.close()
-                        continue
-
-                    console.print("  [magenta]Applying...[/magenta]")
-                    await safe_click(apply_btn.first)
+                # Paginate or Refresh
+                if is_recommendation_mode:
+                    console.print("[dim]Checking for fresh recommendations...[/dim]")
+                    await main_page.reload(wait_until="domcontentloaded")
                     try:
-                        await job_page.wait_for_load_state("domcontentloaded", timeout=5000)
+                        await main_page.wait_for_selector('article[data-automation="normalJob"], a[data-automation^="recommendedJobLink_"]', timeout=10000)
                     except Exception:
                         pass
+                else:
+                    next_btn = main_page.get_by_role("link", name=re.compile(r"(Selanjutnya|Next)", re.IGNORECASE))
+                    if await next_btn.count():
+                        await safe_click(next_btn.first)
+                        try:
+                            await main_page.wait_for_selector('article[data-automation="normalJob"]', state="attached", timeout=10000)
+                        except Exception:
+                            pass
+                    else:
+                        console.print("[dim]End of pages.[/dim]")
+                        break
 
-                    # Handle application in new tab vs same page
-                    apply_page = context.pages[-1] if len(context.pages) > pages_before else job_page
-                    new_tab = apply_page != job_page
-                    if new_tab:
-                        await apply_page.bring_to_front()
-
-                    job_log = {
-                        "title": title,
-                        "url": clean_url,
-                        "location": loc_text,
-                        "salary": sal_text,
-                        "questions": []
-                    }
-                    success = await navigate_form(apply_page, answers_db, title, dry_run, auto_mode, job_log)
-
-                    if success:
-                        apps_done += 1
-                        run_log["applied_jobs"].append(job_log)
-                        applied_history.add(clean_url)
-                        log_applied_job(title, clean_url, sal_text, loc_text, dry_run)
-                        if max_apps >= 999999:
-                            console.print(f"  [cyan]Logged ({apps_done})[/cyan]")
-                        else:
-                            console.print(f"  [cyan]Logged ({apps_done}/{max_apps})[/cyan]")
-
-                    if new_tab:
-                        await apply_page.close()
-                    await job_page.close()
-
-                except Exception as e:
-                    console.print(f"  [red]Apply error: {e}[/red]")
-                    try:
-                        await job_page.close()
-                    except Exception:
-                        pass
-
-            # Paginate
-            next_btn = main_page.get_by_role("link", name=re.compile(r"(Selanjutnya|Next)", re.IGNORECASE))
-            if await next_btn.count():
-                await safe_click(next_btn.first)
-                try:
-                    await main_page.wait_for_selector('article[data-automation="normalJob"]', state="attached", timeout=10000)
-                except Exception:
-                    pass
-            else:
-                console.print("[dim]End of pages.[/dim]")
-                break
-
-        console.print(f"\n[bold green]Done! Applied to {apps_done} jobs.[/bold green]")
+            console.print(f"\n[bold green]Done! Applied to {apps_done} jobs.[/bold green]")
+            await context.close()
         
-        # Save detailed log 
+    finally:
+        # Save detailed log on graceful finish or crash
+        run_log["settings"]["end_time"] = datetime.datetime.now().isoformat()
         import os
         os.makedirs("automaton/logs", exist_ok=True)
         log_path = f"automaton/logs/{run_timestamp}.json"
         with open(log_path, "w", encoding="utf-8") as f:
             json.dump(run_log, f, indent=4, ensure_ascii=False)
         console.print(f"[bold cyan]Detailed run log saved to: {log_path}[/bold cyan]")
-        
-        await context.close()
 
 # ---------------------------------------------------------------------------
 # Entry Point
@@ -915,7 +1067,7 @@ def main() -> None:
 
     keyword = Prompt.ask("Job keyword", default="")
     location = Prompt.ask("Location", default="Jakarta")
-    extra_excl = Prompt.ask("Extra exclude keywords (comma-separated)", default="dosen, echonomic, principal, christian, christiann, kristen, religious, religion, agama, china, chinese, mandarin, toddler, todly, toddly, tk, kindergarden, bayi, baby. musik, seni, renang, music, singing, sport")
+    extra_excl = Prompt.ask("Extra exclude keywords (comma-separated)", default="akutansi, math, matematika, mathematic, dosen, echonomic, principal, christian, christiann, kristen, religious, religion, agama, china, chinese, mandarin, toddler, todly, toddly, tk, kindergarden, bayi, baby, musik, seni, renang, music, singing, sport, dancing, public speaking, economic")
     max_str = Prompt.ask("Max applications (type ALL for no limit)", default="ALL")
     
     console.print("\n[bold]Mode Selection (For new 'How many years' questions)[/bold]")
