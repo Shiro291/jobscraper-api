@@ -164,3 +164,6 @@ glints.json
 jobstreet.json
 indeed.json
 linkedin.json
+
+# Playwright Browser Profile
+playwright-profile/
