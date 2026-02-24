@@ -1,0 +1,980 @@
+{
+    "Berapa gaji bulanan yang kamu inginkan?": {
+        "type": "Dropdown",
+        "options": [
+            "Rp 1 Jt, Rp 5 Jt, Rp 10 Jt"
+        ],
+        "answer": "Rp 5 Jt"
+    },
+    "Kualifikasi mana yang kamu miliki?": {
+        "type": "Dropdown",
+        "options": [
+            "SMA/SMK, Diploma (D1 - D4), Sarjana (S1), Magister (S2)"
+        ],
+        "answer": "Sarjana (S1)"
+    },
+    "Other (language not listed)": {
+        "type": "Choice",
+        "options": [
+            "Other (language not listed)"
+        ],
+        "answer": "### Question: How many years' experience do you have as a Primary Teacher?"
+    },
+    "Bahasa Inggris": {
+        "type": "MultiChoice",
+        "options": [
+            "Bahasa Inggris",
+            "Bahasa Indonesia",
+            "Bahasa Mandarin",
+            "Bahasa Jepang",
+            "Bahasa Prancis",
+            "Bahasa Jerman",
+            "Bahasa Korea",
+            "Lainnya (bahasa tidak ada dalam daftar)"
+        ],
+        "answer": "Bahasa Inggris | Bahasa Indonesia"
+    },
+    "Berbicara dengan mahir dalam situasi profesional": {
+        "type": "MultiChoice",
+        "options": [
+            "Berbicara dengan mahir dalam situasi profesional",
+            "Menulis dengan mahir dalam situasi profesional",
+            "Kemahiran terbatas"
+        ],
+        "answer": "Berbicara dengan mahir dalam situasi profesional | Menulis dengan mahir dalam situasi profesional"
+    },
+    "What's your expected monthly basic salary?": {
+        "type": "Dropdown",
+        "options": [
+            "Rp 1 million",
+            "Rp 1.5 million",
+            "Rp 2 million",
+            "Rp 2.5 million",
+            "Rp 3 million",
+            "Rp 3.5 million",
+            "Rp 4 million",
+            "Rp 4.5 million",
+            "Rp 5 million",
+            "Rp 5.5 million",
+            "Rp 6 million",
+            "Rp 7 million",
+            "Rp 8 million",
+            "Rp 9 million",
+            "Rp 10 million",
+            "Rp 15 million",
+            "Rp 20 million",
+            "Rp 25 million",
+            "Rp 30 million",
+            "Rp 40 million",
+            "Rp 60 million",
+            "Rp 80 million",
+            "Rp 100 million or more"
+        ],
+        "answer": "Rp 5 million"
+    },
+    "Which of the following types of qualifications do you have?": {
+        "type": "Text",
+        "options": [],
+        "answer": "s1"
+    },
+    "How many years' experience do you have as a Mathematics and Science Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "Speaks proficiently in a professional setting": {
+        "type": "MultiChoice",
+        "options": [
+            "Speaks proficiently in a professional setting",
+            "Writes proficiently in a professional setting",
+            "Limited proficiency"
+        ],
+        "answer": "Speaks proficiently in a professional setting | Writes proficiently in a professional setting"
+    },
+    "English": {
+        "type": "MultiChoice",
+        "options": [
+            "English",
+            "Bahasa Indonesia",
+            "Mandarin",
+            "Japanese",
+            "French",
+            "German",
+            "Korean",
+            "Other (language not listed)"
+        ],
+        "answer": "English | Bahasa Indonesia"
+    },
+    "How many years' experience do you have as a Librarian?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "Publisher": {
+        "type": "MultiChoice",
+        "options": [
+            "Publisher",
+            "Outlook",
+            "PowerPoint",
+            "OneNote",
+            "Access",
+            "Word",
+            "Excel",
+            "Tidak satupun"
+        ],
+        "answer": "PowerPoint | OneNote | Access | Word | Excel"
+    },
+    "Ya, sertifikat International English Language Testing System (IELTS)": {
+        "type": "MultiChoice",
+        "options": [
+            "Ya, sertifikat International English Language Testing System (IELTS)",
+            "Ya, sertifikat Test of English as a Foreign Language (TOEFL)",
+            "Ya, sertifikat Test of English for International Communication (TOEIC)",
+            "Saya memiliki sertifikat kemahiran bahasa Inggris yang tidak ada dalam daftar",
+            "Saya tidak memiliki sertifikat kemahiran bahasa Inggris"
+        ],
+        "answer": "Ya, sertifikat International English Language Testing System (IELTS) | Ya, sertifikat Test of English as a Foreign Language (TOEFL) | Saya memiliki sertifikat kemahiran bahasa Inggris yang tidak ada dalam daftar"
+    },
+    "Ya, perjalanan domestik": {
+        "type": "MultiChoice",
+        "options": [
+            "Ya, perjalanan domestik",
+            "Ya, perjalanan internasional",
+            "Tidak"
+        ],
+        "answer": "Ya, perjalanan domestik | Ya, perjalanan internasional"
+    },
+    "Do you have experience working with children?": {
+        "type": "Choice",
+        "options": [
+            "Yes",
+            "No"
+        ],
+        "answer": "Yes"
+    },
+    "Do you have professional child care experience?": {
+        "type": "Choice",
+        "options": [
+            "Yes",
+            "No"
+        ],
+        "answer": "Yes"
+    },
+    "Do you have a current Police Check (National Police Certificate) for employment?": {
+        "type": "Choice",
+        "options": [
+            "Yes, I have a current National Police Certificate",
+            "I am willing to undertake a National Police Check if required",
+            "No"
+        ],
+        "answer": "I am willing to undertake a National Police Check if required"
+    },
+    "Do you have experience planning and implementing education programs in an early learning environment?": {
+        "type": "Choice",
+        "options": [
+            "Yes",
+            "No"
+        ],
+        "answer": "Yes"
+    },
+    "How many years' experience do you have as an Information Technology Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "1 year"
+    },
+    "How much notice are you required to give your current employer?": {
+        "type": "Choice",
+        "options": [
+            "None, I'm ready to go now",
+            "Less than 1 month",
+            "1 month",
+            "2 months",
+            "More than 2 months"
+        ],
+        "answer": "None, I'm ready to go now"
+    },
+    "Are you available to work outside your usual hours when required? (e.g. weekends, evenings, public holidays)": {
+        "type": "Choice",
+        "options": [
+            "Yes",
+            "No"
+        ],
+        "answer": "Yes"
+    },
+    "Are you willing to undergo a pre-employment medical check?": {
+        "type": "Choice",
+        "options": [
+            "Yes",
+            "No"
+        ],
+        "answer": "Yes"
+    },
+    "How many years' experience do you have as a Chemistry Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "How many years' experience do you have as a Secondary Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "Do you have any leave planned in the next 6 months?": {
+        "type": "Dropdown",
+        "options": [
+            "Yes, less than 1 week",
+            "Yes, 1 - 2 weeks",
+            "Yes, 2 - 3 weeks",
+            "Yes, 3 - 4 weeks",
+            "Yes, more than 4 weeks",
+            "No"
+        ],
+        "answer": "No"
+    },
+    "Yes, a car": {
+        "type": "MultiChoice",
+        "options": [
+            "Yes, a car",
+            "Yes, a motorcycle",
+            "No"
+        ],
+        "answer": "Yes, a motorcycle"
+    },
+    "How many years' experience do you have as an Islamic Studies Teacher?": {
+        "type": "Text",
+        "options": [],
+        "answer": "less than a year"
+    },
+    "Do you have experience in an administration role?": {
+        "type": "Choice",
+        "options": [
+            "Yes",
+            "No"
+        ],
+        "answer": "Yes"
+    },
+    "Do you have a current Indonesian driver's licence?": {
+        "type": "Choice",
+        "options": [
+            "Yes, type A licence for personal vehicles",
+            "Yes, type B licence for commercial vehicles",
+            "Yes, type C licence for motorcycles only",
+            "No"
+        ],
+        "answer": "c"
+    },
+    "Are you willing to relocate for this role?": {
+        "type": "Choice",
+        "options": [
+            "Yes",
+            "I already live in the region",
+            "No"
+        ],
+        "answer": "Yes"
+    },
+    "How many years' experience do you have as a Primary Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "1 year"
+    },
+    "How many years' experience do you have as a Counsellor?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "How many years' experience do you have as a Physics Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "How many years' experience do you have as a School Counsellor?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "How many years' experience do you have as a Literacy Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "Are you willing to undergo a pre-employment background check?": {
+        "type": "Choice",
+        "options": [
+            "Yes",
+            "No"
+        ],
+        "answer": "Yes"
+    },
+    "Berapa tahun pengalaman kerjamu sebagai guru bahasa inggris?": {
+        "type": "Dropdown",
+        "options": [
+            "Tidak ada pengalaman",
+            "Kurang dari 1 tahun",
+            "1 tahun",
+            "2 tahun",
+            "3 tahun",
+            "4 tahun",
+            "5 tahun",
+            "Lebih dari 5 tahun"
+        ],
+        "answer": "Kurang dari 1 tahun"
+    },
+    "How many years' experience do you have as a Sports Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "How many years' experience do you have as a Science Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "How many years' experience do you have as a teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "1 year"
+    },
+    "Yes, domestic travel": {
+        "type": "MultiChoice",
+        "options": [
+            "Yes, domestic travel",
+            "Yes, international travel",
+            "No"
+        ],
+        "answer": "Yes, domestic travel | Yes, international travel"
+    },
+    "Berapa tahun pengalaman kerjamu sebagai guru?": {
+        "type": "Dropdown",
+        "options": [
+            "Tidak ada pengalaman",
+            "Kurang dari 1 tahun",
+            "1 tahun",
+            "2 tahun",
+            "3 tahun",
+            "4 tahun",
+            "5 tahun",
+            "Lebih dari 5 tahun"
+        ],
+        "answer": "1 tahun"
+    },
+    "Berapa lama waktu yang kamu butuhkan untuk memberi tahu perusahaanmu saat ini?": {
+        "type": "Choice",
+        "options": [
+            "Tidak ada, saya siap bekerja segera",
+            "Kurang dari 1 bulan",
+            "1 bulan",
+            "2 bulan",
+            "Lebih dari 2 bulan"
+        ],
+        "answer": "Tidak ada, saya siap bekerja segera"
+    },
+    "How many years' experience do you have as a Maths Methods Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "How many years' experience do you have as a Lecturer in Bahasa Indonesia?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "1 year"
+    },
+    "How many years' experience do you have as a Guidance Counsellor?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "How many years' experience do you have as an Indonesian Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "How many years' experience do you have as a Native-speaking English Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "No experience"
+    },
+    "Apakah kamu bersedia bekerja di luar jam kerja biasa saat dibutuhkan? (cth. akhir pekan, malam hari, hari libur nasional)": {
+        "type": "Choice",
+        "options": [
+            "Ya",
+            "Tidak"
+        ],
+        "answer": "Ya"
+    },
+    "Apakah kamu bersedia menjalani pemeriksaan latar belakang prakerja?": {
+        "type": "Choice",
+        "options": [
+            "Ya",
+            "Tidak"
+        ],
+        "answer": "Ya"
+    },
+    "How many years' experience do you have as a Montessori Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "How many years' experience do you have as a Mathematics Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "1 year"
+    },
+    "How many years' experience do you have as a Computer Science Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "How many years' experience do you have as a High School Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "1 year"
+    },
+    "How many years' experience do you have as a Classroom Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "1 year"
+    },
+    "How many years' experience do you have as an English Language Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "1 year"
+    },
+    "How many years' experience do you have as a Preschool Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "No experience"
+    },
+    "How many years' experience do you have as a Kindergarten Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "How many years' experience do you have as an Education Consultant?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "No experience"
+    },
+    "How many years' experience do you have as an Economics Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "No experience"
+    },
+    "How many years' experience do you have as a School Librarian?": {
+        "type": "Text",
+        "options": [],
+        "answer": "1 year"
+    },
+    "How many years' experience do you have as an Admission Staff?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "No experience"
+    },
+    "How many years' experience do you have as a Special Educational Needs Teacher?": {
+        "type": "Text",
+        "options": [],
+        "answer": "1 year"
+    },
+    "How many years' experience do you have as a Kindergarten Early Childhood Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "How many years' experience do you have as an operations manager?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "1 year"
+    },
+    "Apakah kamu memiliki surat izin mengemudi Indonesia yang masih aktif?": {
+        "type": "Choice",
+        "options": [
+            "Ya, SIM A untuk kendaraan pribadi",
+            "Ya, SIM B untuk kendaraan pribadi",
+            "Ya, SIM C hanya untuk motor",
+            "Tidak"
+        ],
+        "answer": "Ya, SIM C hanya untuk motor"
+    },
+    "How many years' experience do you have as a Health and Physical Education Teacher?": {
+        "type": "Text",
+        "options": [],
+        "answer": "1"
+    },
+    "How many years' experience do you have as an Admissions Counsellor?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "No experience"
+    },
+    "Apakah kamu berpengalaman dalam pekerjaan administrasi?": {
+        "type": "Choice",
+        "options": [
+            "Ya",
+            "Tidak"
+        ],
+        "answer": "Ya"
+    },
+    "How many years' experience do you have as a Lecturer?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "How many years' experience do you have as a Management Lecturer?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "How many years' experience do you have as a Sociology Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "Apakah kamu memiliki Gelar S1?": {
+        "type": "Choice",
+        "options": [
+            "Ya",
+            "Tidak"
+        ],
+        "answer": "Ya"
+    },
+    "How many years' experience do you have as a Computer and Network Engineering Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "How many years' experience do you have as a Head Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "How many years' experience do you have as an Early Childhood Manager?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "Less than 1 year"
+    },
+    "How many years' experience do you have as an Early Childhood Teacher?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "1 year"
+    },
+    "How many years of game software development experience do you have?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "1 year"
+    },
+    ".NET": {
+        "type": "MultiChoice",
+        "options": [
+            ".NET",
+            "C",
+            "C#",
+            "C++",
+            "CSS",
+            "HTML",
+            "Java",
+            "JavaScript",
+            "Objective-C",
+            "PHP",
+            "Python",
+            "Ruby",
+            "Swift",
+            "Visual Basic",
+            "None of these"
+        ],
+        "answer": "C | C# | C++ | CSS | HTML | PHP | Python | Visual Basic"
+    },
+    "How many years' experience do you have as a branch manager?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "1 year"
+    },
+    "Do you have experience in a sales role?": {
+        "type": "Choice",
+        "options": [
+            "Yes",
+            "No"
+        ],
+        "answer": "No"
+    },
+    "How many years' experience do you have as a Marketing and Social Media Coordinator?": {
+        "type": "Dropdown",
+        "options": [
+            "No experience",
+            "Less than 1 year",
+            "1 year",
+            "2 years",
+            "3 years",
+            "4 years",
+            "5 years",
+            "More than 5 years"
+        ],
+        "answer": "1 year"
+    }
+}

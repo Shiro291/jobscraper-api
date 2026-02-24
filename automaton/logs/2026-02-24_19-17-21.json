@@ -1,0 +1,154 @@
+{
+    "timestamp": "2026-02-24_19-17-21",
+    "settings": {
+        "keywords": [
+            "guru",
+            "coding",
+            "ict"
+        ],
+        "location": "Jakarta",
+        "exclude_list": [
+            "mandarin",
+            "chinese",
+            "japanese",
+            "german",
+            "religous",
+            "agama",
+            "kristen",
+            "christian",
+            "principal",
+            "kepala sekolah",
+            "seni",
+            "\\bart\\b",
+            "dosen",
+            "echonomic",
+            "principal",
+            "christian",
+            "christiann",
+            "kristen",
+            "religious",
+            "religion",
+            "agama",
+            "china",
+            "chinese",
+            "mandarin",
+            "toddler",
+            "todly",
+            "toddly",
+            "tk",
+            "kindergarden",
+            "bayi",
+            "baby. musik",
+            "seni",
+            "renang",
+            "music",
+            "singing",
+            "sport"
+        ],
+        "max_apps": 2,
+        "dry_run": true,
+        "auto_mode": "Fully"
+    },
+    "applied_jobs": [
+        {
+            "title": "Math & Art Teacher for Secondary",
+            "url": "https://id.jobstreet.com/id/job/90417842",
+            "location": "Jakarta Barat, Jakarta Raya",
+            "salary": "Hidden",
+            "questions": []
+        },
+        {
+            "title": "Preschool Teacher",
+            "url": "https://id.jobstreet.com/id/job/90277581",
+            "location": "Jakarta Selatan, Jakarta Raya",
+            "salary": "Hidden",
+            "questions": []
+        }
+    ],
+    "skipped_jobs": [
+        {
+            "title": "Physics Teacher",
+            "url": "https://id.jobstreet.com/id/job/90521068",
+            "reason": "Description matched 'mandarin'"
+        },
+        {
+            "title": "SCHOOL DIRECTOR",
+            "url": "https://id.jobstreet.com/id/job/90146178",
+            "reason": "Description matched 'mandarin'"
+        },
+        {
+            "title": "Full-Time Baby Toddly Sensory Teacher",
+            "url": "https://id.jobstreet.com/id/job/90498328",
+            "reason": "Title matched 'toddly'"
+        },
+        {
+            "title": "English Teacher (Native Speaker Only)",
+            "url": "https://id.jobstreet.com/id/job/89941075",
+            "reason": "Description matched 'principal'"
+        },
+        {
+            "title": "STUDIES TEACHER (CHRISTIAN)",
+            "url": "https://id.jobstreet.com/id/job/90246873",
+            "reason": "Title matched 'christian'"
+        },
+        {
+            "title": "Tutor Guru Bimbel Primary - PRIMARY (Full-Time Centre-Based Position)",
+            "url": "https://id.jobstreet.com/id/job/90472355",
+            "reason": "Description matched 'agama'"
+        },
+        {
+            "title": "Guru Agama (PAI)",
+            "url": "https://id.jobstreet.com/id/job/89917904",
+            "reason": "Title matched 'agama'"
+        },
+        {
+            "title": "Principal",
+            "url": "https://id.jobstreet.com/id/job/90470097",
+            "reason": "Title matched 'principal'"
+        },
+        {
+            "title": "School Principal / Kepala Sekolah",
+            "url": "https://id.jobstreet.com/id/job/90148633",
+            "reason": "Title matched 'principal'"
+        },
+        {
+            "title": "School Principal",
+            "url": "https://id.jobstreet.com/id/job/90216309",
+            "reason": "Title matched 'principal'"
+        },
+        {
+            "title": "Swimming Curriculum Specialist",
+            "url": "https://id.jobstreet.com/id/job/90405592",
+            "reason": "Description matched 'renang'"
+        },
+        {
+            "title": "Education Officer",
+            "url": "https://id.jobstreet.com/id/job/89978460",
+            "reason": "Description matched 'mandarin'"
+        },
+        {
+            "title": "Religion Teacher for Primary",
+            "url": "https://id.jobstreet.com/id/job/90418484",
+            "reason": "Title matched 'religion'"
+        },
+        {
+            "title": "Academic Operation Supervisor (Sparks Music)",
+            "url": "https://id.jobstreet.com/id/job/90274796",
+            "reason": "Title matched 'music'"
+        },
+        {
+            "title": "Art and Music Teacher",
+            "url": "https://id.jobstreet.com/id/job/90535698",
+            "reason": "Title matched 'music'"
+        },
+        {
+            "title": "Biology & Environmental Systems & Societies (ESS) Teacher",
+            "url": "https://id.jobstreet.com/id/job/89715231",
+            "reason": "Description matched 'music'"
+        }
+    ],
+    "summary": {
+        "total_applied": 2,
+        "total_skipped": 16
+    }
+}

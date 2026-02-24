@@ -1,0 +1,58 @@
+{
+    "timestamp": "2026-02-24_19-07-26",
+    "settings": {
+        "keywords": [
+            "guru",
+            "coding",
+            "ict"
+        ],
+        "location": "Jakarta",
+        "exclude_list": [
+            "mandarin",
+            "chinese",
+            "japanese",
+            "german",
+            "religous",
+            "agama",
+            "kristen",
+            "christian",
+            "principal",
+            "kepala sekolah",
+            "seni",
+            "\\bart\\b",
+            "dosen",
+            "echonomic",
+            "principal",
+            "christian",
+            "christiann",
+            "kristen",
+            "religious",
+            "religion",
+            "agama",
+            "china",
+            "chinese",
+            "mandarin",
+            "toddler",
+            "todly",
+            "toddly",
+            "tk",
+            "kindergarden",
+            "bayi",
+            "baby. musik",
+            "seni",
+            "renang",
+            "music",
+            "singing",
+            "sport"
+        ],
+        "max_apps": 2,
+        "dry_run": false,
+        "auto_mode": "Fully"
+    },
+    "applied_jobs": [],
+    "skipped_jobs": [],
+    "summary": {
+        "total_applied": 0,
+        "total_skipped": 0
+    }
+}
